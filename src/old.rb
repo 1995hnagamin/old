@@ -1,124 +1,21 @@
-require 'nokogiri'
-require 'mechanize'
 require 'set'
 require 'pp'
-
-@width = `tput cols`.chomp.to_i
-
-def join_roffs(roffs)
-  roffs.join("")
-end
-
-def span2roff(e, child)
-  child
-end
-
-def is_section_title?(string)
-  # regard as a section title when:
-  # * inner text ends width ':'
-  #   like "Description:", "Item #:" ...
-  # * inner text contains characteristic words
-  title_patterns = [
-    /^Item #:$/,
-    /^Special Containment Procedures:$/,
-    /^Object Class:$/,
-    /^Status/,
-    /^Description:$/,
-    /^[a-zA-Z ]*[Ll]og/,
-    /^Addendum/,
-    /^Appendix/,
-    /^Notes [0-9]+/,
-    /^Document.*[0-9]+/
-  ]
-  title_patterns.any? {|pattern| string =~ pattern }
-end
-
-def table2roff(table)
-  rows = table.xpath("tr")
-  column = rows.first.xpath("td").length
-  separater = "^"
-  content = rows.map { |tr|
-    row = tr.xpath("td").map { |td|
-      elem2roff(td, false) + separater
-    }.join("")
-  }.join("\n")
-  <<EOS
-.TS
-tab(#{separater});
-#{"l " * column }.
-#{content}
-.TE
-EOS
-end
-
-def elem2roff(e, title = true)
-  children = e.children.map { |ch| html2roff(ch, title) }
-  case e.name
-  when "strong"
-    child = children.join("")
-    if title and is_section_title?(child)
-      "\n.SH \"#{child.gsub(/:[ ]*$/, "") }\"\n"
-    else
-      "\\fB#{child}\\fR"
-    end
-  when "br"
-    "\n.PP\n"
-  when "hr"
-    "\n.ce 1\n\\l'#{@width / 4 * 3}'\n.ce 0\n"
-  when "blockquote"
-    children = e.children.map { |ch| html2roff(ch, false) }
-    join_roffs(children)
-  when "p"
-    "\n.br\n#{join_roffs(children)}\n.br\n"
-  when "span"
-    child = join_roffs(children)
-    span2roff(e, child)
-  when "table"
-    table2roff(e)
-  else
-    join_roffs(children)
-  end
-end
-
-def html2roff(e, title = true)
-  if e.text?
-    return e.text + (e.text[-1] == '.' ? " ": "")
-  elsif e.elem?
-    elem2roff(e, title)
-  end
-end
-
-def get_name(item_no)
-  agent = Mechanize.new
-  series = item_no.to_i / 1000 + 1
-  url = "http://www.scp-wiki.net/scp-series" + (series > 1 ? "-#{series}" : "")
-  page = agent.get(url)
-  doc = Nokogiri::HTML(page.content.toutf8)
-  article = doc.at('//*[@class="content-panel standalone series"]')
-  article.text.match("SCP-#{item_no} - (.*)$").to_s
-end
+require_relative 'scp-article-loader'
+require_relative 'roff-builder'
 
 begin
   item_no = ARGV[0]
-  item_no = "0" * (3 - item_no.length) + item_no if item_no.length < 3
-  agent = Mechanize.new
-  page = agent.get "http://www.scp-wiki.net/scp-#{item_no}"
-  doc = Nokogiri::HTML(page.content.toutf8)
-  article = doc.xpath('//*[@id="page-content"]').first
-  paragraphs = article.xpath('p|hr|blockquote|div/blockquote|br|table').map do |node|
-    html2roff(node)
-  end
-  roff = join_roffs(paragraphs)
-  name = get_name(item_no)
-
-  puts <<-"EOS"
-.TH "SCP-#{item_no}" 7 "#{Time.now.strftime("%Y-%m-%d")}" "SCP Foundation" "SCP Database"
-.SH NAME
-#{name}
-
-#{roff}
-EOS
-
+  subject = SCPArticleLoader.new(item_no)
+  builder = RoffBuilder.new(subject.article)
+  builder.title = "SCP-#{item_no}"
+  builder.section = 7
+  builder.date = Time.now
+  builder.source = "SCP Foundation"
+  builder.manual = "SCP Database"
+  builder.hr_width = `tput cols`.chomp.to_i
+  builder.name = subject.title
+  roff = builder.build
+  puts roff
 rescue
 
   puts <<-"EOS"
