@@ -1,4 +1,7 @@
+require_relative 'dom'
+
 class RoffBuilder
+  include DOM
   attr_accessor :title, :section, :date, :source, :manual,
     :hr_width, :name
   def initialize(elem)
@@ -9,7 +12,7 @@ class RoffBuilder
     notable_tags =["p", "hr", "blockquote", "div/blockquote",
                    "br", "table"]
     query = notable_tags.join('|')
-    paragraphs = @elem.xpath(query).map do |node|
+    paragraphs = xpath(@elem, query).map do |node|
       html2roff(node)
     end
     body = paragraphs.join("")
@@ -47,11 +50,11 @@ EOS
   end
 
   def table2roff(table)
-    rows = table.xpath("tr")
-    column = rows.first.xpath("td").length
+    rows = xpath("table, tr")
+    column = xpath(rows.first, "td").length
     separater = "^"
     content = rows.map { |tr|
-      row = tr.xpath("td").map { |td|
+      row = xpath(tr, "td").map { |td|
         elem2roff(td, false) + separater
       }.join("")
     }.join("\n")
@@ -65,8 +68,8 @@ EOS
   end
 
   def elem2roff(e, title = true)
-    children = e.children.map { |ch| html2roff(ch, title) }
-    case e.name
+    children = children(e).map { |ch| html2roff(ch, title) }
+    case tag_name(e)
     when "strong"
       child = children.join("")
       if title and is_section_title?(child)
@@ -79,7 +82,7 @@ EOS
     when "hr"
       "\n.ce 1\n\\l'#{@hr_width / 4 * 3}'\n.ce 0\n"
     when "blockquote"
-      children = e.children.map { |ch| html2roff(ch, false) }
+      children = children(e).map { |ch| html2roff(ch, false) }
       children.join("")
     when "p"
       "\n.br\n#{children.join("")}\n.br\n"
@@ -94,9 +97,9 @@ EOS
   end
 
   def html2roff(e, title = true)
-    if e.text?
-      return e.text + (e.text[-1] == '.' ? " ": "")
-    elsif e.elem?
+    if is_text?(e)
+      return text(e) + (text(e)[-1] == '.' ? " ": "")
+    else
       elem2roff(e, title)
     end
   end
