@@ -1,7 +1,6 @@
-require 'nokogiri'
-require 'mechanize'
 require 'set'
 require 'pp'
+require_relative 'loader'
 
 @width = `tput cols`.chomp.to_i
 
@@ -88,28 +87,15 @@ def html2roff(e, title = true)
   end
 end
 
-def get_name(item_no)
-  agent = Mechanize.new
-  series = item_no.to_i / 1000 + 1
-  url = "http://www.scp-wiki.net/scp-series" + (series > 1 ? "-#{series}" : "")
-  page = agent.get(url)
-  doc = Nokogiri::HTML(page.content.toutf8)
-  article = doc.at('//*[@class="content-panel standalone series"]')
-  article.text.match("SCP-#{item_no} - (.*)$").to_s
-end
-
 begin
   item_no = ARGV[0]
-  item_no = "0" * (3 - item_no.length) + item_no if item_no.length < 3
-  agent = Mechanize.new
-  page = agent.get "http://www.scp-wiki.net/scp-#{item_no}"
-  doc = Nokogiri::HTML(page.content.toutf8)
-  article = doc.xpath('//*[@id="page-content"]').first
+  subject = SCPArticleLoader.new(item_no)
+  article = subject.article
   paragraphs = article.xpath('p|hr|blockquote|div/blockquote|br|table').map do |node|
     html2roff(node)
   end
   roff = join_roffs(paragraphs)
-  name = get_name(item_no)
+  name = subject.title
 
   puts <<-"EOS"
 .TH "SCP-#{item_no}" 7 "#{Time.now.strftime("%Y-%m-%d")}" "SCP Foundation" "SCP Database"
@@ -118,7 +104,6 @@ begin
 
 #{roff}
 EOS
-
 rescue
 
   puts <<-"EOS"
