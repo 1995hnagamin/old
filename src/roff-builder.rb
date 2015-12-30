@@ -85,7 +85,7 @@ EOS
       children = children(e).map { |ch| html2roff(ch, false) }
       children.join("")
     when "p"
-      "\n.br\n#{children.join("")}\n.br\n"
+      "\n.br\n#{children.join("").gsub(/^ /, "")}\n.br\n"
     when "span"
       child = children.join("")
       span2roff(e, child)
