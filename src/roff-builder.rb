@@ -74,6 +74,8 @@ EOS
       child = children.join("")
       if title and is_section_title?(child)
         "\n.SH \"#{child.gsub(/:[ ]*$/, "") }\"\n"
+      elsif title and child.index(':')
+        "\n.SS \"#{child.gsub(/:[ ]*$/, "") }\"\n"
       else
         "\\fB#{child}\\fR"
       end
