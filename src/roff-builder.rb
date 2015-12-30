@@ -35,16 +35,16 @@ EOS
     #   like "Description:", "Item #:" ...
     # * inner text contains characteristic words
     title_patterns = [
-      /^Item #:$/,
-      /^Special Containment Procedures:$/,
-      /^Object Class:$/,
-      /^Status/,
-      /^Description:$/,
-      /^[a-zA-Z ]*[Ll]og/,
-      /^Addendum/,
-      /^Appendix/,
-      /^Notes [0-9]+/,
-      /^Document.*[0-9]+/
+      /^Item #:$/i,
+      /^Special Containment Procedures:$/i,
+      /^Object class:$/i,
+      /^Status/i,
+      /^Description:$/i,
+      /^[a-zA-Z ]*Log/i,
+      /^Addendum/i,
+      /^Appendix/i,
+      /^Notes [0-9]+/i,
+      /^Document.*[0-9]+/i
     ]
     title_patterns.any? {|pattern| string =~ pattern }
   end
@@ -74,6 +74,8 @@ EOS
       child = children.join("")
       if title and is_section_title?(child)
         "\n.SH \"#{child.gsub(/:[ ]*$/, "") }\"\n"
+      elsif title and child.index(':')
+        "\n.SS \"#{child.gsub(/:[ ]*$/, "") }\"\n"
       else
         "\\fB#{child}\\fR"
       end
