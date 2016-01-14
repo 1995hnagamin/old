@@ -1,11 +1,20 @@
 require 'set'
 require 'pp'
+require 'optparse'
 require_relative 'scp-article-loader'
 require_relative 'roff-builder'
 
+option = {
+  :locale => "www"
+}
+OptionParser.new do |opt|
+  opt.on('-l', '--locale=locale') { |locale| option[:locale] = locale }
+  opt.parse! ARGV
+end
+
 begin
   item_no = ARGV[0]
-  subject = SCPArticleLoader.new(item_no)
+  subject = SCPArticleLoader.new(item_no, option)
   builder = RoffBuilder.new(subject.article)
   builder.title = "SCP-#{item_no}"
   builder.section = 7
