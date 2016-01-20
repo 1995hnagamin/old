@@ -1,13 +1,14 @@
 require 'set'
 require 'pp'
 require 'optparse'
+require 'fileutils'
 require_relative 'scp-article-loader'
 require_relative 'roff-builder'
 require_relative 'locale'
 
 option = {
   :locale => SITE::EN,
-  :manpath => "~/.local/share/man"
+  :manpath => File.expand_path("~/.local/share/man")
 }
 OptionParser.new do |opt|
   opt.on('-l', '--locale=locale') do |locale|
@@ -17,8 +18,8 @@ OptionParser.new do |opt|
 end
 
 article = ""
+item_no = ARGV[0]
 begin
-  item_no = ARGV[0]
   subject = SCPArticleLoader.new(item_no, option)
   builder = RoffBuilder.new(subject.article)
   builder.title = "SCP-#{item_no}"
@@ -40,4 +41,11 @@ rescue
 EOS
 end
 
-puts article
+path = "#{option[:manpath]}/#{get_locale(option[:locale])}/man7/"
+FileUtils.mkdir_p(path) unless FileTest.exist?(path)
+filepath = path + "scp-#{item_no}.7"
+File.open(filepath, "w") do |file|
+  file.puts article
+end
+
+puts filepath
