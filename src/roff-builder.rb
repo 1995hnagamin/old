@@ -94,7 +94,7 @@ EOS
     when "hr"
       "\n.ce 1\n\\l'#{@hr_width / 4 * 3}'\n.ce 0\n"
     when "blockquote"
-      children.join("")
+      ".RS\n" + children.join("") + "\n.RE\n"
     when "p"
       "\n.br\n#{children.join("").gsub(/^ /, "")}\n.br\n"
     when "span"
