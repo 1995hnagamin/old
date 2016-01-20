@@ -67,14 +67,24 @@ tab(#{separater});
 EOS
   end
 
-  def elem2roff(e, title = true)
-    children = children(e).map { |ch| html2roff(ch, title) }
+  def elem2roff(e, context)
+    ch_context = context
+    ch_context[:depth] = context[:depth] + 1
+    ch_context[:order] = -1
+    children = children(e).map do |ch|
+      ch_context[:order] += 1
+      html2roff(ch, ch_context)
+    end
+
+    depth = context[:depth]
+    order = context[:order]
+
     case tag_name(e)
     when "strong"
       child = children.join("")
-      if title and is_section_title?(child)
+      if depth <= 2 and is_section_title?(child) then
         "\n.SH \"#{child.gsub(/:[ ]*$/, "") }\"\n"
-      elsif title and child.index(':')
+      elsif child.index(':') then
         "\n.SS \"#{child.gsub(/:[ ]*$/, "") }\"\n"
       else
         "\\fB#{child}\\fR"
@@ -84,7 +94,6 @@ EOS
     when "hr"
       "\n.ce 1\n\\l'#{@hr_width / 4 * 3}'\n.ce 0\n"
     when "blockquote"
-      children = children(e).map { |ch| html2roff(ch, false) }
       children.join("")
     when "p"
       "\n.br\n#{children.join("").gsub(/^ /, "")}\n.br\n"
@@ -98,11 +107,11 @@ EOS
     end
   end
 
-  def html2roff(e, title = true)
+  def html2roff(e, context = {:depth => 0, :order => 0})
     if is_text?(e)
       return text(e) + (text(e)[-1] == '.' ? " ": "")
     else
-      elem2roff(e, title)
+      elem2roff(e, context)
     end
   end
 end
