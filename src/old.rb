@@ -8,7 +8,7 @@ require_relative 'locale'
 
 option = {
   :locale => SITE::EN,
-  :manpath => File.expand_path("~/.local/share/man")
+  :manpath => File.expand_path("~/.old/man")
 }
 OptionParser.new do |opt|
   opt.on('-l', '--locale=locale') do |locale|
