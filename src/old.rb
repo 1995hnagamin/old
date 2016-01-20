@@ -12,6 +12,7 @@ OptionParser.new do |opt|
   opt.parse! ARGV
 end
 
+article = ""
 begin
   item_no = ARGV[0]
   subject = SCPArticleLoader.new(item_no, option)
@@ -24,14 +25,15 @@ begin
   builder.hr_width = `tput cols`.chomp.to_i
   builder.name = subject.title
   roff = builder.build
-  puts roff
+  article = roff
 rescue
 
-  puts <<-"EOS"
+  article = <<-"EOS"
 .TH "SCP-#{item_no}" 7 "#{Time.now.strftime("%Y-%m-%d")}" "SCP Foundation" "SCP Database"
 .ce 1
 [ACCESS DENIED]
 .brp
 EOS
-
 end
+
+puts article
