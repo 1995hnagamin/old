@@ -1,12 +1,13 @@
 require 'nokogiri'
 require 'mechanize'
+require_relative 'locale'
 
 class SCPArticleLoader
   def initialize(item_no, option)
     @item_no = item_no
     @option = option
     @agent = Mechanize.new
-    url = "http://#{@option[:locale]}.scp-wiki.net/scp-#{@item_no}"
+    url = "http://#{get_endpoint(@option[:locale])}/scp-#{@item_no}"
     page = @agent.get(url)
     doc = Nokogiri::HTML(page.content.toutf8)
     @article = doc.xpath('//*[@id="page-content"]').first
