@@ -14,6 +14,21 @@ module SITE
       self.const_get(name)
     end
   end
+
+  def self.create(obj)
+    map = {
+      "cn" => CN,
+      "en" => EN,
+      "es" => ES,
+      "fr" => FR,
+      "jp" => JP,
+      "ko" => KO,
+      "pl" => PL,
+      "ru" => RU,
+      "th" => TH
+    }
+    map[obj]
+  end
 end
 
 def get_endpoint(site)
