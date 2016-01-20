@@ -3,12 +3,16 @@ require 'pp'
 require 'optparse'
 require_relative 'scp-article-loader'
 require_relative 'roff-builder'
+require_relative 'locale'
 
 option = {
-  :locale => "www"
+  :locale => SITE::EN,
+  :manpath => "~/.local/share/man"
 }
 OptionParser.new do |opt|
-  opt.on('-l', '--locale=locale') { |locale| option[:locale] = locale }
+  opt.on('-l', '--locale=locale') do |locale|
+    option[:locale] = SITE.create(locale)
+  end
   opt.parse! ARGV
 end
 
