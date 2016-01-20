@@ -84,7 +84,7 @@ EOS
       child = children.join("")
       if depth <= 2 and is_section_title?(child) then
         "\n.SH \"#{child.gsub(/:[ ]*$/, "") }\"\n"
-      elsif child.index(':') then
+      elsif depth <= 2 and order == 0 then
         "\n.SS \"#{child.gsub(/:[ ]*$/, "") }\"\n"
       else
         "\\fB#{child}\\fR"
