@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-describe Pebbles::Old do
+describe Old do
   it 'has a version number' do
-    expect(Pebbles::Old::VERSION).not_to be nil
+    expect(Old::VERSION).not_to be nil
   end
 
   it 'does something useful' do

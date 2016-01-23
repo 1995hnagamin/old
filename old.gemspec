@@ -1,11 +1,11 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'pebbles/old/version'
+require 'old/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "pebbles-old"
-  spec.version       = Pebbles::Old::VERSION
+  spec.name          = "old"
+  spec.version       = Old::VERSION
   spec.authors       = ["Hideaki Nagamine"]
   spec.email         = ["1995.hnagamin@gmail.com"]
 
@@ -19,9 +19,8 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "pebbles", "~> 0.1"
-  spec.add_dependency "nokogiri", "~> 1.6"
-  spec.add_dependency "mechanize", "~> 2.7"
+  spec.add_dependency "nokogiri", "~> 1.6.7"
+  spec.add_dependency "mechanize", "~> 2.7.3"
 
   spec.add_development_dependency "bundler", "~> 1.11"
   spec.add_development_dependency "rake", "~> 10.0"
