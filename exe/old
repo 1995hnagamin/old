@@ -1,5 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env ruby
 
-dir=`dirname $0`
-path=`ruby $dir/../lib/old.rb $@`
-man -l $path
+script = File.expand_path('../old.sh', __FILE__)
+exec "#{script} #{ARGV.join(' ')}"
