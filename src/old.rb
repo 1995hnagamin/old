@@ -6,6 +6,8 @@ require_relative 'scp-article-loader'
 require_relative 'roff-builder'
 require_relative 'locale'
 
+include OLD
+
 option = {
   :locale => SITE::EN,
   :manpath => File.expand_path("~/.old/man")
