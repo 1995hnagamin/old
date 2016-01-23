@@ -1,5 +1,5 @@
 #!/bin/sh
 
 dir=`dirname $0`
-path=`ruby $dir/src/old.rb $@`
+path=`ruby $dir/../lib/old.rb $@`
 man -l $path

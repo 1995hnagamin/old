@@ -1,0 +1,4 @@
+#!/usr/bin/env ruby
+
+script = File.expand_path('../old.sh', __FILE__)
+exec "#{script} #{ARGV.join(' ')}"
