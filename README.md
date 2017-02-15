@@ -20,7 +20,7 @@ Or install it yourself as:
 
 ## Usage
 
-    $ old 173 <item #>
+    $ old <item #>
 
     $ old -l <locale> <item #>
 
