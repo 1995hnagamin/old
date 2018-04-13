@@ -19,7 +19,7 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "nokogiri", "~> 1.6.7"
+  spec.add_dependency "nokogiri", "~> 1.8.2"
   spec.add_dependency "mechanize", "~> 2.7.3"
 
   spec.add_development_dependency "bundler", "~> 1.11"
